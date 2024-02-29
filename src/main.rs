@@ -1,27 +1,30 @@
 use axum::response::Html;
 use axum::Router;
 use axum::routing::get;
+use axum_extra::response::Css;
 use rscx::{CollectFragment, component, html, props};
 
 #[tokio::main]
 async fn main() {
-    let s = "ul { color: red; }";
-    let name = "Lyra";
-
-    let app = Router::new().route("/", get(|| async { Html(app().await) }));
+    let router = Router::new()
+        .route("/", get(|| async { Html(app().await) }))
+        .route("/styles.css", get(|| async { Css(getCss().await) }));
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, router).await.unwrap();
+}
+
+async fn getCss() -> String {
+    tokio::fs::read_to_string("src/styles.css").await.expect("file should exist")
 }
 
 // simple function returning a String
 // it will call the Items() function
 async fn app() -> String {
-    let s = "ul { color: red; }";
     html! {
         <!DOCTYPE html>
         <html>
             <head>
-                <style>{s}</style>
+                <link href="styles.css" rel="stylesheet" />
             </head>
             <body>
                 // call a component with no props
