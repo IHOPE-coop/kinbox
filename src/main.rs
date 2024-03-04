@@ -16,10 +16,6 @@ async fn getCss() -> String {
     tokio::fs::read_to_string("src/styles.css").await.expect("file should exist")
 }
 
-fn load_kinbox_buttons() -> Vec<String> {
-    vec!["<< Kinpad".to_owned(), "Kinshop >>".to_owned()]
-}
-
 fn MenuButton(text: &str) -> Markup {
     html! {
         button class="menu-button text" {
@@ -28,7 +24,7 @@ fn MenuButton(text: &str) -> Markup {
     }
 }
 
-fn Menu(buttons: Vec<String>) -> Markup {
+fn Menu(buttons: Vec<&str>) -> Markup {
     html! {
         div class="menu" {
             @for button in &buttons {
@@ -39,7 +35,7 @@ fn Menu(buttons: Vec<String>) -> Markup {
 }
 
 async fn kinbox() -> Markup {
-    let buttons = load_kinbox_buttons();
+    let buttons = vec!["<< Kinpad", "Kinshop >>"];
 
     html! {
         (DOCTYPE)
