@@ -1,52 +1,38 @@
 use axum::Router;
 use axum::routing::get;
-use axum_extra::response::Css;
+use axum_extra::response::{Html, Css, JavaScript};
 use maud::{DOCTYPE, html, Markup};
 
 #[tokio::main]
 async fn main() {
     let router = Router::new()
-        .route("/", get(kinbox))
-        .route("/styles.css", get(|| async { Css(getCss().await) }));
+        .route("/", get(|| async { Html(svelteTest().await) }))
+        .route("/favicon.png", get(|| async { /* TODO: Image handler */} ))
+        .route("/styles.css", get(|| async { Css(getCss().await) }))
+        .route("/bundle.js", get(|| async { JavaScript(getJsBundle().await) }));
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, router).await.unwrap();
 }
 
 async fn getCss() -> String {
-    tokio::fs::read_to_string("src/styles.css").await.expect("file should exist")
+    tokio::fs::read_to_string("components/public/build/styles.css").await.expect("file should exist")
 }
 
-fn MenuButton(text: &str) -> Markup {
-    html! {
-        button class="menu-button text" {
-            (text)
-        }
-    }
+async fn getJsBundle() -> String {
+    tokio::fs::read_to_string("components/public/build/bundle.js").await.expect("file should exist")
 }
 
-fn Menu(buttons: Vec<&str>) -> Markup {
-    html! {
-        div class="menu" {
-            @for button in &buttons {
-                (MenuButton(button));
-            }
-        }
-    }
-}
-
-async fn kinbox() -> Markup {
-    let buttons = vec!["<< Kinpad", "Kinshop >>"];
-
+async fn svelteTest() -> Markup {
     html! {
         (DOCTYPE)
         head {
-            link href="styles.css" rel="stylesheet";
+            title { "Kinbox" }
+            link href="favicon.png" rel="icon" type="image/png";
+            link href="bundle.css" rel="stylesheet";
+            script defer src="bundle.js" { }
         }
         body {
-            div class="page" {
-                div class="title text" { "Kinbox" }
-            }
-            (Menu(buttons));
+            my-element name="kinbox" { }
         }
     }
 }
