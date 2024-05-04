@@ -19,6 +19,6 @@ export default defineConfig({
             entry: './src/main.js',
             name: 'svelte-app'
         },
-        outDir: 'public'
+        outDir: 'public/build'
     }
 });
