@@ -1,7 +1,7 @@
 <svelte:options customElement="my-element" />
 <script lang="ts">
   import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
+  import viteLogo from './assets/vite.svg'
   import Counter from './lib/Counter.svelte'
 
   export let name;
