@@ -1,7 +1,8 @@
 import './app.css'
 import Starter from './Starter.svelte'
+import App from './App.svelte'
 
-const app = new Starter({
+const app = new App({
     target: document.getElementById('app')!,
 })
 
