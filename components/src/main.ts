@@ -1,4 +1,8 @@
 import './app.css'
-import App from './App.svelte'
+import Starter from './Starter.svelte'
 
-export default App
+const app = new Starter({
+    target: document.getElementById('app')!,
+})
+
+export default app

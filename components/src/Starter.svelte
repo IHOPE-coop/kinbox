@@ -1,10 +1,9 @@
-<svelte:options customElement="my-element" />
 <script lang="ts">
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from './assets/vite.svg'
+  import MyElement from './MyElement.svelte'
   import Counter from './lib/Counter.svelte'
-
-  export let name;
+  import './app.css'
 </script>
 
 <main>
@@ -16,7 +15,7 @@
       <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
     </a>
   </div>
-  <h1>Vite + Svelte + {name}</h1>
+  <MyElement name="Web Components"></MyElement>
 
   <div class="card">
     <Counter />
