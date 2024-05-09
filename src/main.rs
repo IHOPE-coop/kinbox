@@ -32,7 +32,7 @@ async fn svelteTest() -> Markup {
             script defer type="module" src="components.js" { }
         }
         body {
-            my-element name="Rust" { }
+            div id="app" { }
         }
     }
 }
