@@ -26,6 +26,9 @@ async fn main() {
         .route("/style.css", get(getCss))
         .route("/components.js", get(getJsBundle))
         .route("/user/:username", get(show_view))
+        .route("/hx-needs/:username", get(needs))
+        .route("/hx-notifs/:username", get(notifs))
+        .route("/hx-ledger/:username", get(ledger))
         .with_state(users);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, router).await.unwrap();
@@ -59,6 +62,18 @@ async fn show_view(Path(username): Path<String>, State(state): State<Users>) -> 
             })
         }
     })
+}
+
+async fn needs(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
+    html! { }
+}
+
+async fn notifs(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
+    html! { }
+}
+
+async fn ledger(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
+    html! { }
 }
 
 async fn svelteTest() -> Html<Markup> {
