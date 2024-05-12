@@ -16,7 +16,7 @@ impl User {
         }
     }
 
-    pub fn page(&self) -> impl Iterator + '_ {
+    pub fn page(&self) -> impl Iterator {
         self.page.iter()
     }
 
@@ -30,7 +30,7 @@ impl User {
         self.sent.push(stamp);
     }
 
-    pub fn sent(&self) -> impl Iterator + '_ {
+    pub fn sent(&self) -> impl Iterator {
         self.sent.iter()
     }
 
