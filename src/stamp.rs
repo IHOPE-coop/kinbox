@@ -15,7 +15,7 @@ impl Stamp {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Ledger {
     records: Vec<Stamp>
 }

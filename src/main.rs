@@ -6,19 +6,40 @@ use axum::Router;
 use axum::routing::get;
 use axum_extra::response::{Html, Css, JavaScript};
 use maud::{DOCTYPE, html, Markup};
+use crate::stamp::Ledger;
 use crate::user::User;
 
 #[derive(Clone)]
 struct Users {
     nathan: User,
-    harley: User
+    harley: User,
+    ledger: Ledger
+}
+
+impl Users {
+    fn current(&self, username: &'static str) -> Option<&User> {
+        match username.as_str() {
+            "nathan" => Some(&self.nathan),
+            "harley" => Some(&self.harley),
+            _ => None
+        }
+    }
+
+    fn other(&self, username: &'static str) -> Option<&User> {
+        match username.as_str() {
+            "nathan" => Some(&self.harley),
+            "harley" => Some(&self.nathan),
+            _ => None
+        }
+    }
 }
 
 #[tokio::main]
 async fn main() {
     let users = Users {
         nathan: User::new("Nathan"),
-        harley: User::new("Harley")
+        harley: User::new("Harley"),
+        ledger: Ledger::default()
     };
 
     let router = Router::new()
@@ -44,20 +65,14 @@ async fn getJsBundle() -> JavaScript<String> {
 }
 
 async fn show_view(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
-    let (current, other) = match username.as_str() {
-        "nathan" => (Some(state.nathan), Some(state.harley)),
-        "harley" => (Some(state.harley), Some(state.nathan)),
-        _ => (None, None)
-    };
-
     Html(html! {
-        p {"Current: " (match current {
+        p {"Current: " (match state.current(username.as_str()) {
                 None => "Invalid user",
                 Some(user) => user.username
             })
         }
 
-        p {"Other: " (match other {
+        p {"Other: " (match state.other(username.as_str()) {
                 None => "No other",
                 Some(user) => user.username
             })
@@ -66,15 +81,20 @@ async fn show_view(Path(username): Path<String>, State(state): State<Users>) -> 
 }
 
 async fn needs(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
-    html! { }
+    let current = state.current(username.as_str()).unwrap();
+    todo!(current.page());
+    Html(html! { })
 }
 
 async fn notifs(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
-    html! { }
+    let other = state.other(username.as_str()).unwrap();
+    todo!(other.sent());
+    Html(html! { })
 }
 
 async fn ledger(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
-    html! { }
+    todo!(state.ledger.of_user(username.as_str()));
+    Html(html! { })
 }
 
 async fn svelteTest() -> Html<Markup> {
