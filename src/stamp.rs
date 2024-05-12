@@ -1,10 +1,11 @@
-pub struct Record {
+#[derive(Clone, PartialEq)]
+pub struct Stamp {
     giver: String,
     recipient: String,
     description: String
 }
 
-impl Record {
+impl Stamp {
     pub fn new(giver: &str, recipient: &str, description: &str) -> Self {
         Self {
             giver: giver.to_owned(),
@@ -16,19 +17,19 @@ impl Record {
 
 #[derive(Default)]
 pub struct Ledger {
-    records: Vec<Record>
+    records: Vec<Stamp>
 }
 
 impl Ledger {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self::default()
     }
 
-    fn add(&mut self, record: Record) {
+    pub fn add(&mut self, record: Stamp) {
         self.records.push(record)
     }
 
-    fn of_user(&self, username: &str) -> impl Iterator {
+    pub fn of_user(&self, username: &str) -> impl Iterator {
         self.records.iter().filter(|&record| {
             record.giver == username
             || record.recipient == username

@@ -1,5 +1,5 @@
 mod user;
-mod ledger;
+mod stamp;
 
 use axum::extract::{Path, State};
 use axum::Router;

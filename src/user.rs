@@ -1,9 +1,10 @@
+use crate::stamp::{Ledger, Stamp};
+
 #[derive(Default, PartialEq, Clone)]
 pub struct User {
     pub username: &'static str,
     page: Vec<String>,
-    sent: Vec<String>,
-    ledger: Vec<String>
+    sent: Vec<Stamp>,
 }
 
 impl User {
@@ -12,7 +13,6 @@ impl User {
             username,
             page: Vec::new(),
             sent: Vec::new(),
-            ledger: Vec::new()
         }
     }
 
@@ -24,21 +24,18 @@ impl User {
         self.page.push(body.to_string())
     }
 
-    pub fn send(&mut self, stamp: usize) {
+    pub fn send(&mut self, stamp: usize, user: &User) {
         let body = self.page.remove(stamp);
-        self.sent.push(body);
+        let stamp = Stamp::new(self.username, user.username, body.as_str());
+        self.sent.push(stamp);
     }
 
     pub fn sent(&self) -> impl Iterator + '_ {
         self.sent.iter()
     }
 
-    pub fn accept(&mut self, stamp: usize) {
+    pub fn accept(&mut self, stamp: usize, ledger: &mut Ledger) {
         let body = self.sent.remove(stamp);
-        self.ledger.push(body);
-    }
-
-    pub fn ledger(&self) -> impl Iterator + '_ {
-        self.ledger.iter()
+        ledger.add(body);
     }
 }
