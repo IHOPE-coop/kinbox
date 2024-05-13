@@ -30,7 +30,7 @@ impl User {
         self.sent.push(stamp);
     }
 
-    pub fn sent(&self) -> impl Iterator {
+    pub fn sent(&self) -> impl Iterator<Item = Stamp> {
         self.sent.iter()
     }
 

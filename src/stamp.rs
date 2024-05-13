@@ -13,6 +13,18 @@ impl Stamp {
             description: description.to_owned()
         }
     }
+
+    pub fn giver(&self) -> &str {
+        &self.giver
+    }
+
+    pub fn recipient(&self) -> &str {
+        &self.recipient
+    }
+
+    pub fn description(&self) -> &str {
+        &self.description
+    }
 }
 
 #[derive(Default, Clone)]
@@ -29,7 +41,7 @@ impl Ledger {
         self.records.push(record)
     }
 
-    pub fn of_user(&self, username: &str) -> impl Iterator {
+    pub fn of_user(&self, username: &str) -> impl Iterator<Item = Stamp> {
         self.records.iter().filter(|&record| {
             record.giver == username
             || record.recipient == username

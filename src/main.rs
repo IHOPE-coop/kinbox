@@ -2,6 +2,7 @@ mod user;
 mod stamp;
 
 use axum::extract::{Path, State};
+use axum::http::StatusCode;
 use axum::Router;
 use axum::routing::get;
 use axum_extra::response::{Html, Css, JavaScript};
@@ -80,21 +81,46 @@ async fn show_view(Path(username): Path<String>, State(state): State<Context>) -
     })
 }
 
-async fn needs(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
-    let current = state.current(username.as_str()).unwrap();
-    todo!(current.page());
-    Html(html! { })
+async fn needs(Path(username): Path<String>, State(state): State<Context>) -> (StatusCode, Html<Markup>) {
+    return if let Some(current) = state.current(username.as_str()) {
+        let iter = current.page();
+        (StatusCode::OK, Html(html! {
+            ul {
+                @for need in iter {
+                    li {(need)}
+                }
+            }
+        }))
+    } else {
+        (StatusCode::NOT_FOUND, Html(html! {"Invalid user"}))
+    }
 }
 
-async fn notifs(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
-    let other = state.other(username.as_str()).unwrap();
-    todo!(other.sent());
-    Html(html! { })
+async fn notifs(Path(username): Path<String>, State(state): State<Context>) -> (StatusCode, Html<Markup>) {
+    return if let Some(other) = state.other(username.as_str()) {
+        let iter = other.sent();
+        (StatusCode::OK, Html(html! {
+            ul {
+                @for stamp in iter {
+                    li {(stamp.giver())"->"(stamp.recipient())": "(stamp.description())}
+                }
+            }
+        }))
+    } else {
+        (StatusCode::NOT_FOUND, Html(html! {"Invalid user"}))
+    }
 }
 
 async fn ledger(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
-    todo!(state.ledger.of_user(username.as_str()));
-    Html(html! { })
+    // todo!(state.ledger.of_user(username.as_str()));
+    let iter = state.ledger.of_user(username.as_str());
+    Html(html! {
+        ul {
+            @for stamp in iter {
+                li {(stamp.giver())"->"(stamp.recipient())": "(stamp.description())}
+            }
+        }
+    })
 }
 
 async fn svelteTest() -> Html<Markup> {
