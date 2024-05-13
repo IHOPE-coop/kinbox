@@ -49,9 +49,9 @@ async fn main() {
         .route("/style.css", get(getCss))
         .route("/components.js", get(getJsBundle))
         .route("/user/:username", get(show_view))
-        .route("/hx-needs/:username", get(needs))
-        .route("/hx-notifs/:username", get(notifs))
-        .route("/hx-ledger/:username", get(ledger))
+        .route("/hx-needs/:username", get(hx_needs))
+        .route("/hx-notifs/:username", get(hx_notifs))
+        .route("/hx-ledger/:username", get(hx_ledger))
         .with_state(users);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, router).await.unwrap();
@@ -81,7 +81,7 @@ async fn show_view(Path(username): Path<String>, State(state): State<Context>) -
     })
 }
 
-async fn needs(Path(username): Path<String>, State(state): State<Context>) -> (StatusCode, Html<Markup>) {
+async fn hx_needs(Path(username): Path<String>, State(state): State<Context>) -> (StatusCode, Html<Markup>) {
     return if let Some(current) = state.current(username.as_str()) {
         let iter = current.page();
         (StatusCode::OK, Html(html! {
@@ -96,7 +96,7 @@ async fn needs(Path(username): Path<String>, State(state): State<Context>) -> (S
     }
 }
 
-async fn notifs(Path(username): Path<String>, State(state): State<Context>) -> (StatusCode, Html<Markup>) {
+async fn hx_notifs(Path(username): Path<String>, State(state): State<Context>) -> (StatusCode, Html<Markup>) {
     return if let Some(other) = state.other(username.as_str()) {
         let iter = other.sent();
         (StatusCode::OK, Html(html! {
@@ -111,7 +111,7 @@ async fn notifs(Path(username): Path<String>, State(state): State<Context>) -> (
     }
 }
 
-async fn ledger(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
+async fn hx_ledger(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
     // todo!(state.ledger.of_user(username.as_str()));
     let iter = state.ledger.of_user(username.as_str());
     Html(html! {
