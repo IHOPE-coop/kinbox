@@ -10,13 +10,13 @@ use crate::stamp::Ledger;
 use crate::user::User;
 
 #[derive(Clone)]
-struct Users {
+struct Context {
     nathan: User,
     harley: User,
     ledger: Ledger
 }
 
-impl Users {
+impl Context {
     fn current(&self, username: &'static str) -> Option<&User> {
         match username.as_str() {
             "nathan" => Some(&self.nathan),
@@ -36,7 +36,7 @@ impl Users {
 
 #[tokio::main]
 async fn main() {
-    let users = Users {
+    let users = Context {
         nathan: User::new("Nathan"),
         harley: User::new("Harley"),
         ledger: Ledger::default()
@@ -64,7 +64,7 @@ async fn getJsBundle() -> JavaScript<String> {
     JavaScript(tokio::fs::read_to_string("components/dist/components.js").await.expect("file should exist"))
 }
 
-async fn show_view(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
+async fn show_view(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
     Html(html! {
         p {"Current: " (match state.current(username.as_str()) {
                 None => "Invalid user",
@@ -80,19 +80,19 @@ async fn show_view(Path(username): Path<String>, State(state): State<Users>) -> 
     })
 }
 
-async fn needs(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
+async fn needs(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
     let current = state.current(username.as_str()).unwrap();
     todo!(current.page());
     Html(html! { })
 }
 
-async fn notifs(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
+async fn notifs(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
     let other = state.other(username.as_str()).unwrap();
     todo!(other.sent());
     Html(html! { })
 }
 
-async fn ledger(Path(username): Path<String>, State(state): State<Users>) -> Html<Markup> {
+async fn ledger(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
     todo!(state.ledger.of_user(username.as_str()));
     Html(html! { })
 }
