@@ -1,3 +1,7 @@
+<script lang="ts">
+  import 'htmx.org'
+</script>
+
 <style>
     /* CSS style for the container of grid items */
     .GridContainer {
@@ -47,31 +51,32 @@
       color: #3B3C3E;
     }
   
-      /* CSS style for h2 headers */
-      h2 {
-          font-family: 'Quicksand', sans-serif; /* Specify the custom font */
-          color: #595756
-      }
+    /* CSS style for h2 headers */
+    h2 {
+        font-family: 'Quicksand', sans-serif; /* Specify the custom font */
+        color: #595756
+    }
+
     /* Adjust margin or padding for the second column */
     .SecondColumn {
       margin-top: 1px; /* Add margin at the top */
     }
   
-      /* CSS style for the button */
-  .ShuffleButton {
-    width: 150px; /* Set a fixed width */
-    height: 40px; /* Set a fixed height */
-    background-color: #4CAF50; /* Green background color */
-    color: white; /* White text color */
-    border: none; /* Remove border */
-    border-radius: 6px; /* Add rounded corners */
-    font-size: 16px; /* Font size */
-    cursor: pointer; /* Add cursor on hover */
-  }
-  
-  .ShuffleButton:hover {
-    background-color: #45a049; /* Darker green on hover */
-  }
+    /* CSS style for the button */
+    .ShuffleButton {
+      width: 150px; /* Set a fixed width */
+      height: 40px; /* Set a fixed height */
+      background-color: #4CAF50; /* Green background color */
+      color: white; /* White text color */
+      border: none; /* Remove border */
+      border-radius: 6px; /* Add rounded corners */
+      font-size: 16px; /* Font size */
+      cursor: pointer; /* Add cursor on hover */
+    }
+
+    .ShuffleButton:hover {
+      background-color: #45a049; /* Darker green on hover */
+    }
   </style>
   
   <!-- HTML code for the text input and the two columns of scrollable square containers with headers -->
