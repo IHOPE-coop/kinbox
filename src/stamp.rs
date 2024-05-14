@@ -41,8 +41,9 @@ impl Ledger {
         self.records.push(record)
     }
 
-    pub fn of_user(&self, username: &str) -> impl Iterator<Item = Stamp> {
-        self.records.iter().filter(|&record| {
+    pub fn of_user(&self, username: &str) -> impl Iterator<Item = &Stamp> {
+        let username = username.to_owned();
+        self.records.iter().filter(move |&record| {
             record.giver == username
             || record.recipient == username
         })

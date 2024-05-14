@@ -11,31 +11,6 @@ use maud::{DOCTYPE, html, Markup};
 use crate::stamp::Ledger;
 use crate::user::User;
 
-#[derive(Clone)]
-struct Context {
-    nathan: User,
-    harley: User,
-    ledger: Ledger
-}
-
-impl Context {
-    fn current(&self, username: &'static str) -> Option<&User> {
-        match username.as_str() {
-            "nathan" => Some(&self.nathan),
-            "harley" => Some(&self.harley),
-            _ => None
-        }
-    }
-
-    fn other(&self, username: &'static str) -> Option<&User> {
-        match username.as_str() {
-            "nathan" => Some(&self.harley),
-            "harley" => Some(&self.nathan),
-            _ => None
-        }
-    }
-}
-
 #[tokio::main]
 async fn main() {
     let users = Context {
@@ -48,7 +23,7 @@ async fn main() {
         .route("/", get(svelteTest))
         // .route("/favicon.png", get(|| async { /* TODO: Image handler */} ))
         .route("/style.css", get(getCss))
-        .route("/components.js", get(getJsBundle))
+        .route("/bundles/:bundle", get(getJsBundle))
         .route("/user/:username", get(show_view))
         .route("/hx-needs/:username", get(handlers::hx_needs))
         .route("/hx-notifs/:username", get(handlers::hx_notifs))
@@ -58,12 +33,41 @@ async fn main() {
     axum::serve(listener, router).await.unwrap();
 }
 
+#[derive(Clone)]
+struct Context {
+    nathan: User,
+    harley: User,
+    ledger: Ledger
+}
+
+impl Context {
+    fn current(&self, username: &str) -> Option<&User> {
+        match username {
+            "nathan" => Some(&self.nathan),
+            "harley" => Some(&self.harley),
+            _ => None
+        }
+    }
+
+    fn other(&self, username: &str) -> Option<&User> {
+        match username {
+            "nathan" => Some(&self.harley),
+            "harley" => Some(&self.nathan),
+            _ => None
+        }
+    }
+}
+
 async fn getCss() -> Css<String> {
     Css(tokio::fs::read_to_string("components/dist/style.css").await.expect("file should exist"))
 }
 
-async fn getJsBundle() -> JavaScript<String> {
-    JavaScript(tokio::fs::read_to_string("components/dist/components.js").await.expect("file should exist"))
+async fn getJsBundle(Path(bundle): Path<String>) -> (StatusCode, JavaScript<String>) {
+    let path = format!("components/dist/{}", bundle);
+    match tokio::fs::read_to_string(path).await {
+        Ok(bundle) => (StatusCode::OK, JavaScript(bundle)),
+        Err(_) => (StatusCode::NOT_FOUND, JavaScript("".to_owned()))
+    }
 }
 
 async fn show_view(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
@@ -89,7 +93,7 @@ async fn svelteTest() -> Html<Markup> {
             title { "Kinbox" }
             link href="favicon.png" rel="icon" type="image/png";
             link href="style.css" rel="stylesheet";
-            script defer type="module" src="components.js" { }
+            script defer type="module" src="/bundles/components.js" { }
         }
         body {
             div id="app" { }

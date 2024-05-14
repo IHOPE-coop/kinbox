@@ -16,7 +16,7 @@ impl User {
         }
     }
 
-    pub fn page(&self) -> impl Iterator {
+    pub fn page(&self) -> impl Iterator<Item = &String> {
         self.page.iter()
     }
 
@@ -30,7 +30,7 @@ impl User {
         self.sent.push(stamp);
     }
 
-    pub fn sent(&self) -> impl Iterator<Item = Stamp> {
+    pub fn sent(&self) -> impl Iterator<Item = &Stamp> {
         self.sent.iter()
     }
 

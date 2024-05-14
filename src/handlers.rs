@@ -15,7 +15,7 @@ pub async fn hx_needs(Path(username): Path<String>, State(state): State<Context>
             }
         }))
     } else {
-        (StatusCode::NOT_FOUND, Html(html! {"Invalid user"}))
+        (StatusCode::NOT_FOUND, Html(html! {"Invalid username"}))
     }
 }
 
@@ -30,7 +30,7 @@ pub async fn hx_notifs(Path(username): Path<String>, State(state): State<Context
             }
         }))
     } else {
-        (StatusCode::NOT_FOUND, Html(html! {"Invalid user"}))
+        (StatusCode::NOT_FOUND, Html(html! {"Invalid username"}))
     }
 }
 
