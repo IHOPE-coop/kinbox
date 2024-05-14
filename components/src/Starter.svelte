@@ -4,6 +4,8 @@
   import MyElement from './MyElement.svelte'
   import Counter from './lib/Counter.svelte'
   import './app.css'
+
+  export let message = 'foo';
 </script>
 
 <main>
@@ -15,7 +17,7 @@
       <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
     </a>
   </div>
-  <MyElement name="Web Components"></MyElement>
+  <MyElement name={message}></MyElement>
 
   <div class="card">
     <Counter />

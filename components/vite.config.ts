@@ -1,3 +1,4 @@
+import { resolve } from 'path'
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import path from "path";
@@ -18,8 +19,18 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/main.ts',
-      name: 'components'
-    }
+      name: 'components',
+      formats: ['es', 'cjs']
+    },
+    rollupOptions: {
+      input: {
+        main: "src/main.ts",
+        secondary: "src/secondary.ts"
+      },
+      output: {
+        inlineDynamicImports: false
+      }
+    },
   },
   resolve: {
     alias: {
