@@ -25,6 +25,7 @@ async fn main() {
         // .route("/pages/*page", get(getPage))
         .route("/bundles/:bundle", get(getJsBundle))
         .route("/style.css", get(getCss))
+        .route("/login", get(login))
         .route("/user/:username", get(show_view))
         .route("/hx-needs/:username", get(handlers::hx_needs))
         .route("/hx-notifs/:username", get(handlers::hx_notifs))
@@ -77,6 +78,21 @@ async fn getJsBundle(Path(bundle): Path<String>) -> (StatusCode, JavaScript<Stri
 
 async fn getCss() -> Css<String> {
     Css(tokio::fs::read_to_string("components/dist/style.css").await.expect("file should exist"))
+}
+
+async fn login() -> Html<Markup> {
+    Html(html! {
+        (DOCTYPE)
+        head {
+            title { "Kinbox" }
+            link href="favicon.png" rel="icon" type="image/png";
+            link href="style.css" rel="stylesheet";
+            script defer type="module" src="/bundles/login.js" { }
+        }
+        body {
+            div id="app" { }
+        }
+    })
 }
 
 async fn show_view(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {

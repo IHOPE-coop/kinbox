@@ -25,6 +25,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         starter: "src/starter.ts",
+        login: "src/login.ts",
         app: "src/app.ts"
       },
       output: {
