@@ -22,8 +22,9 @@ async fn main() {
     let router = Router::new()
         .route("/", get(svelteTest))
         // .route("/favicon.png", get(|| async { /* TODO: Image handler */} ))
-        .route("/style.css", get(getCss))
+        // .route("/pages/*page", get(getPage))
         .route("/bundles/:bundle", get(getJsBundle))
+        .route("/style.css", get(getCss))
         .route("/user/:username", get(show_view))
         .route("/hx-needs/:username", get(handlers::hx_needs))
         .route("/hx-notifs/:username", get(handlers::hx_notifs))
@@ -58,9 +59,13 @@ impl Context {
     }
 }
 
-async fn getCss() -> Css<String> {
-    Css(tokio::fs::read_to_string("components/dist/style.css").await.expect("file should exist"))
-}
+// async fn getPage(Path(page): Path<String>) -> (StatusCode, Html<String>) {
+//     let path = format!("components/dist/{}", page);
+//     match tokio::fs::read_to_string(path).await {
+//         Ok(page) => (StatusCode::OK, Html(page)),
+//         Err(_) => (StatusCode::NOT_FOUND, Html("".to_owned()))
+//     }
+// }
 
 async fn getJsBundle(Path(bundle): Path<String>) -> (StatusCode, JavaScript<String>) {
     let path = format!("components/dist/{}", bundle);
@@ -70,18 +75,25 @@ async fn getJsBundle(Path(bundle): Path<String>) -> (StatusCode, JavaScript<Stri
     }
 }
 
-async fn show_view(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
-    Html(html! {
-        p {"Current: " (match state.current(username.as_str()) {
-                None => "Invalid user",
-                Some(user) => user.username
-            })
-        }
+async fn getCss() -> Css<String> {
+    Css(tokio::fs::read_to_string("components/dist/style.css").await.expect("file should exist"))
+}
 
-        p {"Other: " (match state.other(username.as_str()) {
-                None => "No other",
-                Some(user) => user.username
-            })
+async fn show_view(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
+    let other = match state.other(username.as_str()) {
+        None => "",
+        Some(user) => user.username,
+    };
+    Html(html! {
+        (DOCTYPE)
+        head {
+            title { "Kinbox" }
+            link href="favicon.png" rel="icon" type="image/png";
+            link href="style.css" rel="stylesheet";
+            script defer type="module" src="/bundles/app.js" { }
+        }
+        body {
+            div id="app" current=(username) other=(other) { }
         }
     })
 }
@@ -93,10 +105,10 @@ async fn svelteTest() -> Html<Markup> {
             title { "Kinbox" }
             link href="favicon.png" rel="icon" type="image/png";
             link href="style.css" rel="stylesheet";
-            script defer type="module" src="/bundles/components.js" { }
+            script defer type="module" src="/bundles/starter.js" { }
         }
         body {
-            div id="app" { }
+            div id="app" message="Rust" { }
         }
     })
 }

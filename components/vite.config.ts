@@ -18,19 +18,25 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: 'src/main.ts',
+      entry: ['src/starter.ts'],
       name: 'components',
       formats: ['es', 'cjs']
     },
     rollupOptions: {
       input: {
-        main: "src/main.ts",
-        secondary: "src/secondary.ts"
+        starter: "src/starter.ts",
+        app: "src/app.ts"
       },
       output: {
-        inlineDynamicImports: false
+        inlineDynamicImports: false,
       }
     },
+    // rollupOptions: {
+    //   input: {
+    //     main: resolve(__dirname, 'index.html'),
+    //     nested: resolve(__dirname, 'nested/index.html'),
+    //   }
+    // }
   },
   resolve: {
     alias: {

@@ -1,5 +1,8 @@
 <script lang="ts">
   import 'htmx.org'
+
+  export let current;
+  export let other;
 </script>
 
 <style>
@@ -80,7 +83,7 @@
   </style>
   
   <!-- HTML code for the text input and the two columns of scrollable square containers with headers -->
-  <div class="BigHeader">User: Harley</div>
+  <div class="BigHeader">User: {current}</div>
   
   <div class="GridContainer">
     <div class="ContainerWrapper">
@@ -94,7 +97,7 @@
     <!-- Column 2 -->
     <div class="ContainerWrapper SecondColumn">
       <button class="ShuffleButton">Shuffle Kin</button> <!-- Add button here -->
-      <h2 class="ContainerHeader">Nathan's Needs</h2>
+      <h2 class="ContainerHeader">{other}'s Needs</h2>
       <div class="SquareContainer">
         <!-- Content inside Square Container 2 -->
       </div>
