@@ -1,6 +1,19 @@
 <script lang="ts">
     let username = ''; // This variable will hold the value entered in the username text box
     let password = ''; // This variable will hold the value entered in the password text box
+
+    function login() {
+        switch (username) {
+            case 'harley':
+                // Do stuff
+                console.log("Harley log in")
+                break
+            case 'nathan':
+                // Do stuff
+                console.log("Nathan log in")
+                break
+        }
+    }
 </script>
 
 <style>
@@ -72,11 +85,9 @@
 <div class="ContainerWrapper">
     <h2 class="ContainerHeader">Sign In</h2>
     <div class="SquareContainer">
-        <form>
-            <input type="text" class="TextInput" placeholder="Username" value="{username}">
-            <input type="password" class="TextInput" placeholder="Password" value="{password}">
-            <button type="submit" class="log-in-button">Log In</button>
-        </form>
+        <input type="text" class="TextInput" placeholder="Username" bind:value="{username}" >
+        <input type="password" class="TextInput" placeholder="Password" bind:value="{password}">
+        <button class="log-in-button" on:click={login}>Log In</button>
         <button class="new-user-button">New User</button>
         <button class="forgot-password-button">Forgot Password</button>
     </div>
