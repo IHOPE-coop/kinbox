@@ -1,5 +1,6 @@
 <script lang="ts">
-    import 'htmx.org'
+    import 'htmx.org';
+    import Need from "$lib/Need.svelte";
     let newItem = ''; // This variable will hold the value entered in the text box
     let myItems: { text: string, id: any }[] = []; // This array will hold the my needs list items
     let notifItems: any = []; // This array will hold the notification list items
@@ -155,17 +156,15 @@
 
 <div class="GridContainer">
     <div class="ContainerWrapper">
-        <input type="text" class="TextInput" placeholder="I need..." bind:value={newItem} on:keypress={handleKeyPress}>
+        <form hx-post="/hx-needs" hx-target="#needs" hx-swap="innerHTML">
+            <input type="text" name="need" class="TextInput" placeholder="I need..." bind:value={newItem} on:keypress={handleKeyPress}>
+        </form>
         <h2 class="ContainerHeader">My Needs</h2>
         <div class="SquareContainer">
-            <div class="DivWithScroll">
+            <div class="DivWithScroll" id="needs">
                 <ul>
                     {#each myItems as item}
-                        <li class="list-item">
-                            <span class="item-text">{item.text}</span>
-                            <button class="duplicate-button">Duplicate</button>
-                            <button class="delete-button">Delete</button>
-                        </li>
+                        <Need>{item.text}</Need>
                         <!-- Repeat list items as needed -->
                     {/each}
                 </ul>
