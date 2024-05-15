@@ -3,15 +3,9 @@
     let password = ''; // This variable will hold the value entered in the password text box
 
     function login() {
-        switch (username) {
-            case 'harley':
-                // Do stuff
-                console.log("Harley log in")
-                break
-            case 'nathan':
-                // Do stuff
-                console.log("Nathan log in")
-                break
+        if (username === 'harley' || username == 'nathan') {
+            console.log("logging in " + username)
+            window.location.href = "/user/" + username
         }
     }
 </script>

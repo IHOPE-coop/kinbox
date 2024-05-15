@@ -25,6 +25,7 @@ async fn main() {
         // .route("/pages/*page", get(getPage))
         .route("/bundles/:bundle", get(getJsBundle))
         .route("/style.css", get(getCss))
+        .route("/user/style.css", get(getCss))
         .route("/login", get(login))
         .route("/user/:username", get(show_view))
         .route("/hx-needs/:username", get(handlers::hx_needs))
