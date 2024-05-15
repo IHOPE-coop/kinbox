@@ -10,21 +10,6 @@
     export let current = "Harley";
     export let other = "Nathan";
 
-    // Function to handle adding a new item to the my needs list
-    function addItem() {
-        if (newItem.trim() !== '') { // Check if the new item is not empty or whitespace
-            myItems = [...myItems, {text: newItem, id: Date.now()}]; // Add the new item with a unique ID to the main list
-            newItem = ''; // Clear the text box after adding the item
-        }
-    }
-
-    // Function to handle hitting the Enter key
-    function handleKeyPress(event: any) {
-        if (event.key === 'Enter') {
-            addItem(); // Call the addItem function when Enter key is pressed
-        }
-    }
-
     // Function to remove an item from the main list
     function removeItem(itemId: any) {
         myItems = myItems.filter(item => item.id !== itemId); // Filter out the item with the specified ID
@@ -157,18 +142,12 @@
 <div class="GridContainer">
     <div class="ContainerWrapper">
         <form hx-post="/hx-needs/{current}" hx-target="#needs" hx-swap="innerHTML">
-            <input type="text" name="need" class="TextInput" placeholder="I need..." bind:value={newItem} on:keypress={handleKeyPress}>
+            <input type="text" name="need" class="TextInput" placeholder="I need...">
         </form>
         <h2 class="ContainerHeader">My Needs</h2>
         <div class="SquareContainer">
             <div class="DivWithScroll" id="needs" hx-get="/hx-needs/{current}" hx-swap="innerHTML" hx-trigger="load">
                 I'm supposed to be replaced by htmx
-<!--                <ul>-->
-<!--                    {#each myItems as item}-->
-<!--                        <Need>{item.text}</Need>-->
-<!--                        &lt;!&ndash; Repeat list items as needed &ndash;&gt;-->
-<!--                    {/each}-->
-<!--                </ul>-->
             </div>
         </div>
     </div>
