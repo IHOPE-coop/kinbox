@@ -9,4 +9,5 @@ edition = "2021"
 axum = "0.7.4"
 axum-extra = "0.9.2"
 maud = { version = "0.26.0", features = ["axum"] }
+serde = { version = "1.0.201", features = ["derive"] }
 tokio = { version = "1.36.0", features = ["fs", "rt-multi-thread"] }

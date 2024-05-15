@@ -5,7 +5,7 @@ mod handlers;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::Router;
-use axum::routing::get;
+use axum::routing::{get, post};
 use axum_extra::response::{Html, Css, JavaScript};
 use maud::{DOCTYPE, html, Markup};
 use crate::stamp::Ledger;
@@ -28,7 +28,7 @@ async fn main() {
         .route("/user/style.css", get(getCss))
         .route("/login", get(login))
         .route("/user/:username", get(show_view))
-        .route("/hx-needs/:username", get(handlers::hx_needs))
+        .route("/hx-needs/:username", get(handlers::hx_needs_get).post(handlers::hx_needs_post))
         .route("/hx-notifs/:username", get(handlers::hx_notifs))
         .route("/hx-ledger/:username", get(handlers::hx_ledger))
         .with_state(users);
@@ -52,10 +52,26 @@ impl Context {
         }
     }
 
+    fn current_mut(&mut self, username: &str) -> Option<&mut User> {
+        match username {
+            "nathan" => Some(&mut self.nathan),
+            "harley" => Some(&mut self.harley),
+            _ => None
+        }
+    }
+
     fn other(&self, username: &str) -> Option<&User> {
         match username {
             "nathan" => Some(&self.harley),
             "harley" => Some(&self.nathan),
+            _ => None
+        }
+    }
+
+    fn other_mut(&mut self, username: &str) -> Option<&mut User> {
+        match username {
+            "nathan" => Some(&mut self.harley),
+            "harley" => Some(&mut self.nathan),
             _ => None
         }
     }

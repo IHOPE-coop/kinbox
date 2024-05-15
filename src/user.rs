@@ -1,6 +1,7 @@
+use std::fmt::{Debug, Formatter, Pointer};
 use crate::stamp::{Ledger, Stamp};
 
-#[derive(Default, PartialEq, Clone)]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub struct User {
     pub username: &'static str,
     page: Vec<String>,

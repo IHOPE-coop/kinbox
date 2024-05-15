@@ -156,18 +156,19 @@
 
 <div class="GridContainer">
     <div class="ContainerWrapper">
-        <form hx-post="/hx-needs" hx-target="#needs" hx-swap="innerHTML">
+        <form hx-post="/hx-needs/{current}" hx-target="#needs" hx-swap="innerHTML">
             <input type="text" name="need" class="TextInput" placeholder="I need..." bind:value={newItem} on:keypress={handleKeyPress}>
         </form>
         <h2 class="ContainerHeader">My Needs</h2>
         <div class="SquareContainer">
-            <div class="DivWithScroll" id="needs">
-                <ul>
-                    {#each myItems as item}
-                        <Need>{item.text}</Need>
-                        <!-- Repeat list items as needed -->
-                    {/each}
-                </ul>
+            <div class="DivWithScroll" id="needs" hx-get="/hx-needs/{current}" hx-swap="innerHTML" hx-trigger="load">
+                I'm supposed to be replaced by htmx
+<!--                <ul>-->
+<!--                    {#each myItems as item}-->
+<!--                        <Need>{item.text}</Need>-->
+<!--                        &lt;!&ndash; Repeat list items as needed &ndash;&gt;-->
+<!--                    {/each}-->
+<!--                </ul>-->
             </div>
         </div>
     </div>

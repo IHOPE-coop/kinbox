@@ -1,4 +1,4 @@
-#[derive(Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Stamp {
     giver: String,
     recipient: String,
