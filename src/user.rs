@@ -1,7 +1,10 @@
 use std::fmt::{Debug, Formatter, Pointer};
-use crate::stamp::{Ledger, Stamp};
+use serde::{Deserialize, Serialize};
+use surrealdb::{engine::remote::ws::Client, Surreal};
 
-#[derive(Debug, Default, PartialEq, Clone)]
+use crate::ledger::{self, Stamp};
+
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
 pub struct User {
     pub username: &'static str,
     page: Vec<String>,
@@ -27,7 +30,11 @@ impl User {
 
     pub fn send(&mut self, stamp: usize, user: &User) {
         let body = self.page.remove(stamp);
-        let stamp = Stamp::new(self.username, user.username, body.as_str());
+        let stamp = Stamp {
+            giver: self.username.to_string(),
+            recipient: user.username.to_string(),
+            description: body.to_string()
+        };
         self.sent.push(stamp);
     }
 
@@ -35,8 +42,8 @@ impl User {
         self.sent.iter()
     }
 
-    pub fn accept(&mut self, stamp: usize, ledger: &mut Ledger) {
+    pub async fn accept(&mut self, stamp: usize, db: &Surreal<Client>) {
         let body = self.sent.remove(stamp);
-        ledger.add(body);
+        ledger::add(body, &db).await;
     }
 }

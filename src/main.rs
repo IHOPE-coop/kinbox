@@ -1,5 +1,5 @@
 mod user;
-mod stamp;
+mod ledger;
 mod handlers;
 
 use axum::extract::{Path, State};
@@ -13,19 +13,16 @@ use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
 use surrealdb::sql::Thing;
 use surrealdb::Surreal;
-use crate::stamp::Ledger;
 use crate::user::User;
 
 #[tokio::main]
 async fn main() -> surrealdb::Result<()> {
+    let db = init_db().await.expect("Panic if the database fails");
     let users = Context {
         nathan: User::new("Nathan"),
         harley: User::new("Harley"),
-        ledger: Ledger::default(),
-        db: Surreal::new::<Ws>("127.0.0.1:8000").await?,
+        db
     };
-
-    users.init_db().await?;
 
     // Create a new person with a random id
     let created: Vec<Record> = users.db
@@ -44,13 +41,6 @@ async fn main() -> surrealdb::Result<()> {
     // Select all people records
     let people: Vec<Record> = users.db.select("person").await?;
     dbg!(people);
-
-    // Perform a custom advanced query
-    let groups = users.db
-        .query("SELECT marketing, count() FROM type::table($table) GROUP BY marketing")
-        .bind(("table", "person"))
-        .await?;
-    dbg!(groups);
 
     let router = Router::new()
         .route("/", get(svelteTest))
@@ -89,25 +79,24 @@ struct Record {
     id: Thing,
 }
 
+async fn init_db() -> surrealdb::Result<Surreal<Client>> {
+    let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
+    db.signin(Root {
+        username: "root",
+        password: "root",
+    }).await?;
+    db.use_ns("Surrealist").use_db("CLI").await?;
+    Ok(db)
+}
+
 #[derive(Clone)]
 struct Context {
     nathan: User,
     harley: User,
-    ledger: Ledger,
-    db: Surreal<Client>
+    db: Surreal<Client>,
 }
 
 impl Context {
-    async fn init_db(&self)  -> surrealdb::Result<()> {
-        self.db.signin(Root {
-            username: "root",
-            password: "root",
-        })
-        .await?;
-        self.db.use_ns("Surrealist").use_db("CLI").await?;
-        Ok(())
-    }
-
     fn current(&self, username: &str) -> Option<&User> {
         match username {
             "nathan" => Some(&self.nathan),

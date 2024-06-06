@@ -4,6 +4,7 @@ use axum::Form;
 use axum_extra::response::Html;
 use maud::{html, Markup};
 use serde::Deserialize;
+use crate::ledger;
 use crate::Context;
 
 pub async fn hx_needs_get(Path(username): Path<String>, State(state): State<Context>) -> (StatusCode, Html<Markup>) {
@@ -48,7 +49,7 @@ pub async fn hx_notifs(Path(username): Path<String>, State(state): State<Context
         (StatusCode::OK, Html(html! {
             ul {
                 @for stamp in iter {
-                    li {(stamp.giver())"->"(stamp.recipient())": "(stamp.description())}
+                    li {(stamp.giver)"->"(stamp.recipient)": "(stamp.description)}
                 }
             }
         }))
@@ -59,11 +60,11 @@ pub async fn hx_notifs(Path(username): Path<String>, State(state): State<Context
 
 pub async fn hx_ledger(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
     // todo!(state.ledger.of_user(username.as_str()));
-    let iter = state.ledger.of_user(username.as_str());
+    let iter = ledger::of_user(username.as_str(), &state.db).await.expect("entries in db");
     Html(html! {
         ul {
             @for stamp in iter {
-                li {(stamp.giver())"->"(stamp.recipient())": "(stamp.description())}
+                li {(stamp.giver)"->"(stamp.recipient)": "(stamp.description)}
             }
         }
     })
