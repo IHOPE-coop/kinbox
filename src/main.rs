@@ -9,7 +9,7 @@ use axum::routing::{get, post};
 use axum_extra::response::{Html, Css, JavaScript};
 use maud::{DOCTYPE, html, Markup};
 use serde::{Deserialize, Serialize};
-use surrealdb::engine::remote::ws::Ws;
+use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
 use surrealdb::sql::Thing;
 use surrealdb::Surreal;
@@ -21,22 +21,22 @@ async fn main() -> surrealdb::Result<()> {
     let users = Context {
         nathan: User::new("Nathan"),
         harley: User::new("Harley"),
-        ledger: Ledger::default()
+        ledger: Ledger::default(),
+        db: Surreal::new::<Ws>("127.0.0.1:8000").await?,
     };
 
-    let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
     // Signin as a namespace, database, or root user
-    db.signin(Root {
+    users.db.signin(Root {
         username: "root",
         password: "root",
     })
     .await?;
 
     // Select a specific namespace / database
-    db.use_ns("Surealist").use_db("CLI").await?;
+    users.db.use_ns("Surealist").use_db("CLI").await?;
 
     // Create a new person with a random id
-    let created: Vec<Record> = db
+    let created: Vec<Record> = users.db
         .create("person")
         .content(Person {
             title: "Founder & CEO",
@@ -50,11 +50,11 @@ async fn main() -> surrealdb::Result<()> {
     dbg!(created);
 
     // Select all people records
-    let people: Vec<Record> = db.select("person").await?;
+    let people: Vec<Record> = users.db.select("person").await?;
     dbg!(people);
 
     // Perform a custom advanced query
-    let groups = db
+    let groups = users.db
         .query("SELECT marketing, count() FROM type::table($table) GROUP BY marketing")
         .bind(("table", "person"))
         .await?;
@@ -101,7 +101,8 @@ struct Record {
 struct Context {
     nathan: User,
     harley: User,
-    ledger: Ledger
+    ledger: Ledger,
+    db: Surreal<Client>
 }
 
 impl Context {
