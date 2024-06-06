@@ -21,8 +21,8 @@ impl User {
         self.page.iter()
     }
 
-    pub fn add_to_page(&mut self, body: &str) {
-        self.page.push(body.to_string())
+    pub fn add_to_page(&mut self, body: String) {
+        self.page.push(body)
     }
 
     pub fn send(&mut self, stamp: usize, user: &User) {

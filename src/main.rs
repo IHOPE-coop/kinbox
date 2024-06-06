@@ -8,16 +8,57 @@ use axum::Router;
 use axum::routing::{get, post};
 use axum_extra::response::{Html, Css, JavaScript};
 use maud::{DOCTYPE, html, Markup};
+use serde::{Deserialize, Serialize};
+use surrealdb::engine::remote::ws::Ws;
+use surrealdb::opt::auth::Root;
+use surrealdb::sql::Thing;
+use surrealdb::Surreal;
 use crate::stamp::Ledger;
 use crate::user::User;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> surrealdb::Result<()> {
     let users = Context {
         nathan: User::new("Nathan"),
         harley: User::new("Harley"),
         ledger: Ledger::default()
     };
+
+    let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
+    // Signin as a namespace, database, or root user
+    db.signin(Root {
+        username: "root",
+        password: "root",
+    })
+    .await?;
+
+    // Select a specific namespace / database
+    db.use_ns("Surealist").use_db("CLI").await?;
+
+    // Create a new person with a random id
+    let created: Vec<Record> = db
+        .create("person")
+        .content(Person {
+            title: "Founder & CEO",
+            name: Name {
+                first: "Tobie",
+                last: "Morgan Hitchcock",
+            },
+            marketing: true,
+        })
+    .await?;
+    dbg!(created);
+
+    // Select all people records
+    let people: Vec<Record> = db.select("person").await?;
+    dbg!(people);
+
+    // Perform a custom advanced query
+    let groups = db
+        .query("SELECT marketing, count() FROM type::table($table) GROUP BY marketing")
+        .bind(("table", "person"))
+        .await?;
+    dbg!(groups);
 
     let router = Router::new()
         .route("/", get(svelteTest))
@@ -30,10 +71,30 @@ async fn main() {
         .route("/user/:username", get(show_view))
         .route("/hx-needs/:username", get(handlers::hx_needs_get).post(handlers::hx_needs_post))
         .route("/hx-notifs/:username", get(handlers::hx_notifs))
-        .route("/hx-ledger/:username", get(handlers::hx_ledger))
-        .with_state(users);
+        .route("/hx-ledger/:username", get(handlers::hx_ledger));
+    let router = router.with_state(users);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, router).await.unwrap();
+    Ok(())
+}
+
+#[derive(Debug, Serialize)]
+struct Name<'a> {
+    first: &'a str,
+    last: &'a str,
+}
+
+#[derive(Debug, Serialize)]
+struct Person<'a> {
+    title: &'a str,
+    name: Name<'a>,
+    marketing: bool,
+}
+
+#[derive(Debug, Deserialize)]
+struct Record {
+    #[allow(dead_code)]
+    id: Thing,
 }
 
 #[derive(Clone)]
