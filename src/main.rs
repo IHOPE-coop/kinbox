@@ -25,15 +25,7 @@ async fn main() -> surrealdb::Result<()> {
         db: Surreal::new::<Ws>("127.0.0.1:8000").await?,
     };
 
-    // Signin as a namespace, database, or root user
-    users.db.signin(Root {
-        username: "root",
-        password: "root",
-    })
-    .await?;
-
-    // Select a specific namespace / database
-    users.db.use_ns("Surealist").use_db("CLI").await?;
+    users.init_db().await?;
 
     // Create a new person with a random id
     let created: Vec<Record> = users.db
@@ -106,6 +98,16 @@ struct Context {
 }
 
 impl Context {
+    async fn init_db(&self)  -> surrealdb::Result<()> {
+        self.db.signin(Root {
+            username: "root",
+            password: "root",
+        })
+        .await?;
+        self.db.use_ns("Surrealist").use_db("CLI").await?;
+        Ok(())
+    }
+
     fn current(&self, username: &str) -> Option<&User> {
         match username {
             "nathan" => Some(&self.nathan),
