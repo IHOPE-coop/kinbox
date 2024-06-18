@@ -1,25 +1,29 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::{engine::remote::ws::Client, Surreal};
+use surrealdb::{engine::remote::ws::Client, sql::Thing, Surreal};
 
-use crate::Record;
+use crate::user::UserId;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StampId(pub Thing);
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Stamp {
-    pub giver: String,
-    pub recipient: String,
+    pub id: StampId,
+    pub giver: UserId,
+    pub recipient: UserId,
     pub description: String
 }
 
-pub async fn add(record: Stamp, db: &Surreal<Client>) -> surrealdb::Result<Vec<Record>> {
-    db.create("stamp").content(record).await
+pub async fn add(stamp: Stamp, db: &Surreal<Client>) -> Option<Stamp> {
+    db.create::<Option<Stamp>>("ledger").content(stamp).await.expect("query should work")
 }
 
-pub async fn of_user(username: &str, db: &Surreal<Client>) -> surrealdb::Result<impl Iterator<Item = Stamp>> {
-    let people: Vec<Stamp> = db.select("stamp").await?;
-
-    let username = username.to_owned();
-    Ok(people.into_iter().filter(move |record| {
-        record.giver == username
-        || record.recipient == username
-    }))
+pub async fn of_user(username: &str, db: &Surreal<Client>) -> impl Iterator<Item = Stamp> {
+    let mut result = db
+        .query("SELECT * FROM ledger WHERE recipient.username=$name OR giver.username=$name")
+        .bind(("name", username))
+        .await
+        .expect("Query failed");
+    let ledger: Vec<Stamp> = result.take(0).unwrap_or_default();
+    ledger.into_iter()
 }

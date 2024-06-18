@@ -1,6 +1,7 @@
 mod user;
 mod ledger;
 mod handlers;
+mod db;
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
@@ -8,39 +9,17 @@ use axum::Router;
 use axum::routing::{get, post};
 use axum_extra::response::{Html, Css, JavaScript};
 use maud::{DOCTYPE, html, Markup};
-use serde::{Deserialize, Serialize};
 use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
-use surrealdb::sql::Thing;
 use surrealdb::Surreal;
-use crate::user::User;
+use surrealdb::Result;
 
 #[tokio::main]
-async fn main() -> surrealdb::Result<()> {
+async fn main() -> Result<()> {
     let db = init_db().await.expect("Panic if the database fails");
     let users = Context {
-        nathan: User::new("Nathan"),
-        harley: User::new("Harley"),
         db
     };
-
-    // Create a new person with a random id
-    let created: Vec<Record> = users.db
-        .create("person")
-        .content(Person {
-            title: "Founder & CEO",
-            name: Name {
-                first: "Tobie",
-                last: "Morgan Hitchcock",
-            },
-            marketing: true,
-        })
-    .await?;
-    dbg!(created);
-
-    // Select all people records
-    let people: Vec<Record> = users.db.select("person").await?;
-    dbg!(people);
 
     let router = Router::new()
         .route("/", get(svelteTest))
@@ -50,7 +29,7 @@ async fn main() -> surrealdb::Result<()> {
         .route("/style.css", get(getCss))
         .route("/user/style.css", get(getCss))
         .route("/login", get(login))
-        .route("/user/:username", get(show_view))
+        .route("/user/:username/:other", get(show_view))
         .route("/hx-needs/:username", get(handlers::hx_needs_get).post(handlers::hx_needs_post))
         .route("/hx-notifs/:username", get(handlers::hx_notifs))
         .route("/hx-ledger/:username", get(handlers::hx_ledger));
@@ -60,26 +39,7 @@ async fn main() -> surrealdb::Result<()> {
     Ok(())
 }
 
-#[derive(Debug, Serialize)]
-struct Name<'a> {
-    first: &'a str,
-    last: &'a str,
-}
-
-#[derive(Debug, Serialize)]
-struct Person<'a> {
-    title: &'a str,
-    name: Name<'a>,
-    marketing: bool,
-}
-
-#[derive(Debug, Deserialize)]
-struct Record {
-    #[allow(dead_code)]
-    id: Thing,
-}
-
-async fn init_db() -> surrealdb::Result<Surreal<Client>> {
+async fn init_db() -> Result<Surreal<Client>> {
     let db = Surreal::new::<Ws>("127.0.0.1:8000").await?;
     db.signin(Root {
         username: "root",
@@ -91,43 +51,7 @@ async fn init_db() -> surrealdb::Result<Surreal<Client>> {
 
 #[derive(Clone)]
 struct Context {
-    nathan: User,
-    harley: User,
     db: Surreal<Client>,
-}
-
-impl Context {
-    fn current(&self, username: &str) -> Option<&User> {
-        match username {
-            "nathan" => Some(&self.nathan),
-            "harley" => Some(&self.harley),
-            _ => None
-        }
-    }
-
-    fn current_mut(&mut self, username: &str) -> Option<&mut User> {
-        match username {
-            "nathan" => Some(&mut self.nathan),
-            "harley" => Some(&mut self.harley),
-            _ => None
-        }
-    }
-
-    fn other(&self, username: &str) -> Option<&User> {
-        match username {
-            "nathan" => Some(&self.harley),
-            "harley" => Some(&self.nathan),
-            _ => None
-        }
-    }
-
-    fn other_mut(&mut self, username: &str) -> Option<&mut User> {
-        match username {
-            "nathan" => Some(&mut self.harley),
-            "harley" => Some(&mut self.nathan),
-            _ => None
-        }
-    }
 }
 
 // async fn getPage(Path(page): Path<String>) -> (StatusCode, Html<String>) {
@@ -165,12 +89,8 @@ async fn login() -> Html<Markup> {
     })
 }
 
-async fn show_view(Path(username): Path<String>, State(state): State<Context>) -> Html<Markup> {
-    let other = match state.other(username.as_str()) {
-        None => "",
-        Some(user) => user.username,
-    };
-    Html(html! {
+async fn show_view(Path((username, other)): Path<(String, String)>, State(state): State<Context>) -> Markup {
+    html! {
         (DOCTYPE)
         head {
             title { "Kinbox" }
@@ -181,11 +101,11 @@ async fn show_view(Path(username): Path<String>, State(state): State<Context>) -
         body {
             div id="app" current=(username) other=(other) { }
         }
-    })
+    }
 }
 
-async fn svelteTest() -> Html<Markup> {
-    Html(html! {
+async fn svelteTest() -> Markup {
+    html! {
         (DOCTYPE)
         head {
             title { "Kinbox" }
@@ -196,5 +116,5 @@ async fn svelteTest() -> Html<Markup> {
         body {
             div id="app" message="Rust" { }
         }
-    })
+    }
 }
