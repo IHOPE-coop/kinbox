@@ -9,11 +9,6 @@
 
     export let current = "Harley";
     export let other = "Nathan";
-
-    // Function to remove an item from the main list
-    function removeItem(itemId: any) {
-        myItems = myItems.filter(item => item.id !== itemId); // Filter out the item with the specified ID
-    }
 </script>
 
 <style>
@@ -157,17 +152,8 @@
         <button class="shuffle-button">Shuffle Kin</button> <!-- Add button here -->
         <h2 class="ContainerHeader">{other}'s Needs</h2>
         <div class="SquareContainer">
-            <div class="DivWithScroll">
-                <ul>
-                    {#each kinItems as item}
-                        <li class="list-item">
-                            <span class="item-text">{item.text}</span>
-                            <button class="duplicate-button">Duplicate</button>
-                            <button class="delete-button">Delete</button>
-                        </li>
-                        <!-- Repeat list items as needed -->
-                    {/each}
-                </ul>
+            <div class="DivWithScroll" id="other" hx-get="/hx-needs/{other}" hx-swap="innerHTML" hx-trigger="load">
+                I'm supposed to be replaced by htmx
             </div>
         </div>
     </div>
@@ -176,17 +162,8 @@
     <div class="ContainerWrapper">
         <h2 class="ContainerHeader">Notifications</h2>
         <div class="SquareContainer">
-            <div class="DivWithScroll">
-                <ul>
-                    {#each notifItems as item}
-                        <li class="list-item">
-                            <span class="item-text">{item.text}</span>
-                            <button class="duplicate-button">Duplicate</button>
-                            <button class="delete-button">Delete</button>
-                        </li>
-                        <!-- Repeat list items as needed -->
-                    {/each}
-                </ul>
+            <div class="DivWithScroll" id="notifs" hx-get="/hx-notifs/{current}" hx-swap="innerHTML" hx-trigger="load">
+                I'm supposed to be replaced by htmx
             </div>
         </div>
     </div>
@@ -195,17 +172,8 @@
     <div class="ContainerWrapper">
         <h2 class="ContainerHeader">Ledger</h2>
         <div class="SquareContainer">
-            <div class="DivWithScroll">
-                <ul>
-                    {#each ledgerItems as item}
-                        <li class="list-item">
-                            <span class="item-text">{item.text}</span>
-                            <button class="duplicate-button">Duplicate</button>
-                            <button class="delete-button">Delete</button>
-                        </li>
-                        <!-- Repeat list items as needed -->
-                    {/each}
-                </ul>
+            <div class="DivWithScroll" id="ledger" hx-get="/hx-ledger/{current}" hx-swap="innerHTML" hx-trigger="load">
+                I'm supposed to be replaced by htmx
             </div>
         </div>
     </div>
